@@ -5,14 +5,8 @@ import com.campus.card.exception.*
 import com.campus.card.model.*
 import com.typesafe.config.ConfigFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -202,7 +196,7 @@ class ReissueService(
             )
         }
 
-        if (Cards.select { Cards.cardNo eq request.newCardNo }.count() > 0) {
+        if (Cards.select { Cards.cardNo eq request.newCardNo }.count() > 0L) {
             throw DuplicateCardException(request.newCardNo)
         }
 
@@ -357,7 +351,7 @@ class ReissueService(
     }
 
     fun createBatch(request: CreateBatchRequest): CardBatchResponse = transaction {
-        if (CardBatches.select { CardBatches.batchNo eq request.batchNo }.count() > 0) {
+        if (CardBatches.select { CardBatches.batchNo eq request.batchNo }.count() > 0L) {
             throw InvalidStateException("DUPLICATE_BATCH", "批次号已存在: ${request.batchNo}")
         }
 

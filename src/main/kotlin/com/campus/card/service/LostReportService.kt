@@ -4,14 +4,8 @@ import com.campus.card.dto.*
 import com.campus.card.exception.*
 import com.campus.card.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
 
 private val logger = KotlinLogging.logger {}
@@ -39,8 +33,8 @@ class LostReportService(
         if (currentStatus == CardStatus.LOST || currentStatus == CardStatus.FROZEN) {
             val existing = LostReports.select {
                 (LostReports.cardNo eq request.cardNo) and
-                    (LostReports.status eq LostReportStatus.PENDING) or
-                    (LostReports.status eq LostReportStatus.CONFIRMED)
+                    ((LostReports.status eq LostReportStatus.PENDING) or
+                        (LostReports.status eq LostReportStatus.CONFIRMED))
             }.firstOrNull()
             if (existing != null) {
                 throw CardStateException(

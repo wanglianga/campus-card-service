@@ -5,14 +5,8 @@ import com.campus.card.dto.*
 import com.campus.card.exception.*
 import com.campus.card.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -21,7 +15,7 @@ private val logger = KotlinLogging.logger {}
 class CardService {
 
     fun createCard(request: CreateCardRequest): CardResponse = transaction {
-        if (Cards.select { Cards.cardNo eq request.cardNo }.count() > 0) {
+        if (Cards.select { Cards.cardNo eq request.cardNo }.count() > 0L) {
             throw DuplicateCardException(request.cardNo)
         }
 
@@ -86,15 +80,11 @@ class CardService {
         }
 
         val now = LocalDateTime.now()
-        val updates = mutableMapOf(
-            Cards.status to toStatus
-        )
-        if (toStatus == CardStatus.CANCELLED) {
-            updates[Cards.cancelledAt] = now
-        }
-
         Cards.update({ Cards.id eq cardId }) {
-            updates.forEach { (col, v) -> it[col] = v }
+            it[status] = toStatus
+            if (toStatus == CardStatus.CANCELLED) {
+                it[cancelledAt] = now
+            }
         }
 
         recordOperation(cardId, row[Cards.cardNo], operationType, fromStatus, toStatus, operatorId, detail)

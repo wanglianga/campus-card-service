@@ -1,5 +1,5 @@
-FROM eclipse-temurin:17-jdk-alpine AS build
-RUN apk add --no-cache curl unzip bash
+FROM openjdk:17-jdk-slim AS build
+RUN apt-get update && apt-get install -y curl unzip && rm -rf /var/lib/apt/lists/*
 WORKDIR /tmp
 RUN curl -sL https://services.gradle.org/distributions/gradle-8.5-bin.zip -o gradle.zip && \
     unzip -q gradle.zip && \
@@ -13,9 +13,9 @@ COPY gradle.properties .
 COPY src src
 RUN gradle buildFatJar --no-daemon -x test
 
-FROM eclipse-temurin:17-jre-alpine
+FROM openjdk:17-jre-slim
 WORKDIR /app
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 COPY --from=build /app/build/libs/*-fat.jar app.jar
 RUN mkdir -p /app/data && chown -R appuser:appgroup /app
 USER appuser

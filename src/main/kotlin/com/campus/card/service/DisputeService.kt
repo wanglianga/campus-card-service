@@ -4,14 +4,8 @@ import com.campus.card.dto.*
 import com.campus.card.exception.*
 import com.campus.card.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -67,7 +61,7 @@ class DisputeService(
         if (row[Disputes.status] != DisputeStatus.SUBMITTED && row[Disputes.status] != DisputeStatus.UNDER_REVIEW) {
             throw InvalidStateException(
                 "CANNOT_REVIEW",
-                "当前争议状态 ${row[Disputes.status} 不可审核",
+                "当前争议状态 ${row[Disputes.status]} 不可审核",
                 "只有 SUBMITTED 或 UNDER_REVIEW 状态可审核"
             )
         }

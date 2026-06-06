@@ -1,6 +1,7 @@
 package com.campus.card.model
 
 import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.javatime.datetime
 import java.math.BigDecimal
 
