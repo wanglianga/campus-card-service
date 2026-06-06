@@ -1,0 +1,23 @@
+services:
+  campus-card-service:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATABASE_URL=jdbc:h2:file:/app/data/campus_card;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+      - DATABASE_DRIVER=org.h2.Driver
+      - DATABASE_USER=sa
+      - DATABASE_PASSWORD=
+    volumes:
+      - campus-card-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  campus-card-data:
